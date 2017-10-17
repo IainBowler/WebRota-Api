@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using WebRotaApi.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebRotaApi
 {
@@ -23,6 +25,15 @@ namespace WebRotaApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<WebRotaDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+
+            services.AddCors(o => o.AddPolicy("OpenPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddMvc();
         }
 
@@ -33,6 +44,8 @@ namespace WebRotaApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("OpenPolicy");
 
             app.UseMvc();
         }
