@@ -9,11 +9,26 @@ namespace WebRotaApi.Persistence
 {
     public class WebRotaDbContext :DbContext
     {
+        public DbSet<Organisation> Organisations { get; set; }
+        public DbSet<OrganisationMember> OrganisationMembers { get; set; }
+        public DbSet<Member> Members { get; set; }
+
         public WebRotaDbContext(DbContextOptions<WebRotaDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<Organisation> Organisations { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrganisationMember>()
+                .HasKey(om => new { om.MemberId, om.OrganisationId });
+
+            modelBuilder.Entity<OrganisationMember>()
+                .ToTable("OrganisationMembers");
+
+            modelBuilder.Entity<Member>()
+                .ToTable("Members");
+
+        }
     }
 }

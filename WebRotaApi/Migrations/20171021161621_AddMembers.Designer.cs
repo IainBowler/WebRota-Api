@@ -11,9 +11,10 @@ using WebRotaApi.Persistence;
 namespace WebRotaApi.Migrations
 {
     [DbContext(typeof(WebRotaDbContext))]
-    partial class WebRotaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171021161621_AddMembers")]
+    partial class AddMembers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

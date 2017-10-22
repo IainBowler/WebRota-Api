@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using WebRotaApi.Persistence;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace WebRotaApi
 {
@@ -25,6 +26,8 @@ namespace WebRotaApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper();
+
             services.AddDbContext<WebRotaDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
 
             services.AddCors(o => o.AddPolicy("OpenPolicy", builder =>

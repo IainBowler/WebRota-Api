@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebRotaApi.Models;
 using WebRotaApi.Persistence;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using System.Collections;
+using WebRotaApi.Resources;
 
 namespace WebRotaApi.Controllers
 {
@@ -14,12 +18,13 @@ namespace WebRotaApi.Controllers
     public class OrganisationsController : Controller
     {
         private readonly WebRotaDbContext context;
-
+        private readonly IMapper mapper;
         private Organisation dummyOrganisation = new Organisation { Id = 1, Name = "Organisation 1", OwnerId = "1234" };
 
-        public OrganisationsController(WebRotaDbContext context)
+        public OrganisationsController(WebRotaDbContext context, IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpPost]
@@ -31,12 +36,26 @@ namespace WebRotaApi.Controllers
             return Ok(value);
         }
 
-        [HttpGet("{ownerId}")]
-        public IActionResult GetOwnersOrganisations(string ownerId)
+        [HttpGet("{usersId}")]
+        public IActionResult GetUsersOrganisations(string usersId)
         {
-            List<Organisation> ownerOrganisations = context.Organisations.Where(o => o.OwnerId == ownerId).ToList();
+            List<Organisation> ownerOrganisations = context.Organisations.Where(o => o.OwnerId == usersId).ToList();
 
-            return Ok(ownerOrganisations);
+            List<Organisation> memberOrganisations = context.OrganisationMembers
+                                                                .Include(om => om.Organisation)
+                                                                .Include(om => om.Member)
+                                                                .Where(om => om.Member.UserId == usersId)
+                                                                .Select(om => om.Organisation)
+                                                                .Include(o => o.Members)
+                                                                .ToList();
+
+            List<List<OrganisationResource>> returnList = new List<List<OrganisationResource>>();
+
+            returnList.Add(mapper.Map<List<Organisation>, List<OrganisationResource>>(ownerOrganisations));
+
+            returnList.Add(mapper.Map<List<Organisation>, List<OrganisationResource>>(memberOrganisations));
+
+            return Ok(returnList);
         }
     }
 }

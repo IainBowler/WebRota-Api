@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace WebRotaApi.Models
 {
-    public class Organisation
+    public class Member
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string OwnerId { get; set; }
-        public ICollection<OrganisationMember> Members { get; set; }
+        public string UserId { get; set; }
+        public ICollection<OrganisationMember> Organisations { get; set; }
 
-        public Organisation()
+        public Member()
         {
-            Members = new Collection<OrganisationMember>();
+            Organisations = new Collection<OrganisationMember>();
         }
     }
 }
