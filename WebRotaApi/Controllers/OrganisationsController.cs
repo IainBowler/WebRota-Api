@@ -5,6 +5,7 @@ using WebRotaApi.Models;
 using WebRotaApi.Persistence;
 using AutoMapper;
 using WebRotaApi.Resources;
+using System.Collections.Generic;
 
 namespace WebRotaApi.Controllers
 {
@@ -21,13 +22,16 @@ namespace WebRotaApi.Controllers
             this.mapper = mapper;
         }
 
-        [HttpPost]
-        public IActionResult Post([FromBody]Organisation value)
+        [HttpGet]
+        public IActionResult GetOrganisations(int orgId)
         {
-            value.Id = 0;
-            context.Organisations.Add(value);
-            context.SaveChanges();
-            return Ok(value);
+            List<Organisation> organisations = context.Organisations.Include(o => o.Members)
+                                                                .ThenInclude(om => om.Member)
+                                                                .ToList();
+
+            List<OrganisationResource> returnOrgs = mapper.Map<List<Organisation>, List<OrganisationResource>>(organisations);
+
+            return Ok(returnOrgs);
         }
 
         [HttpGet("{orgId}")]
@@ -40,6 +44,15 @@ namespace WebRotaApi.Controllers
             OrganisationResource returnOrg = mapper.Map<Organisation, OrganisationResource>(organisation);
 
             return Ok(returnOrg);
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody]Organisation value)
+        {
+            value.Id = 0;
+            context.Organisations.Add(value);
+            context.SaveChanges();
+            return Ok(value);
         }
     }
 }
