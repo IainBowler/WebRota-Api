@@ -11,12 +11,12 @@ namespace WebRotaApi.Controllers
 {
     [Produces("application/json")]
     [Route("api/Organisations")]
-    public class OrganisationsController : Controller
+    public class MemberController : Controller
     {
         private readonly WebRotaDbContext context;
         private readonly IMapper mapper;
 
-        public OrganisationsController(WebRotaDbContext context, IMapper mapper)
+        public MemberController(WebRotaDbContext context, IMapper mapper)
         {
             this.context = context;
             this.mapper = mapper;
@@ -46,6 +46,19 @@ namespace WebRotaApi.Controllers
             return Ok(returnOrg);
         }
 
+        [HttpGet("{orgName}")]
+        [Route("Find")]
+        public IActionResult FindOrganisation(string orgName)
+        {
+            Organisation organisation = context.Organisations.Include(o => o.Members)
+                                                                .ThenInclude(om => om.Member)
+                                                                .SingleOrDefault(o => o.Name == orgName);
+
+            OrganisationResource returnOrg = mapper.Map<Organisation, OrganisationResource>(organisation);
+
+            return Ok(returnOrg);
+        }
+
         [HttpPost]
         public IActionResult Post([FromBody]Organisation value)
         {
@@ -53,6 +66,19 @@ namespace WebRotaApi.Controllers
             context.Organisations.Add(value);
             context.SaveChanges();
             return Ok(value);
+        }
+
+        [HttpDelete("{orgId}")]
+        public IActionResult Delete(int orgId)
+        {
+            Organisation organisation = context.Organisations.Include(o => o.Members)
+                                                                .ThenInclude(om => om.Member)
+                                                                .SingleOrDefault(o => o.Id == orgId);
+
+            context.Remove(organisation);
+            context.SaveChanges();
+
+            return Ok();
         }
     }
 }

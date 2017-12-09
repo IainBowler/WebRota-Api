@@ -14,7 +14,6 @@ namespace WebRotaApi.Mapping
         {
             CreateMap<Member, MemberResource>();
             CreateMap<Organisation, OrganisationResource>()
-//                            .ForMember(or => or.Members, o => o.MapFrom(org => org.Members.Select(om => om.Member).ToList()));
                             .ForMember(or => or.Members, o => o.MapFrom(org => org.Members.Select(om => om.Member).ToList()));
         }
     }
